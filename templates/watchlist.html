@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>My Watchlist</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='style.css') }}">
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        CineSuggestion
+    </div>
+
+</nav>
+
+<div class="watch">
+
+    <h1>❤️ My Watchlist</h1>
+
+    {% if watchlist %}
+
+        <div class="row">
+
+            {% for movie_name in watchlist %}
+
+                <div class="card">
+
+                    <img
+                    src="{{ url_for(
+                    'static',
+                    filename='images/' +
+                    movies[movie_name].image
+                    ) }}">
+
+                    <h3>
+                        {{ movie_name }}
+                    </h3>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <h2>
+            No movies added yet.
+        </h2>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Recommendations</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='style.css') }}">
+
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        CineSuggestion
+    </div>
+
+    <ul>
+
+        <li>
+            <a href="/">
+                Home
+            </a>
+        </li>
+
+        <li>
+            <a href="/watchlist">
+                ❤️ My List
+            </a>
+        </li>
+
+    </ul>
+
+</nav>
+
+
+<div class="result-page">
+
+    {% if recommendations %}
+
+        <h1>
+            Because you watched
+            "{{ movie }}"
+        </h1>
+
+        <div class="row">
+
+            {% for name in recommendations %}
+
+                {% if name in movies %}
+
+                <div class="card">
+
+                    <a href="/details/{{ name }}">
+
+                        <img
+                        src="{{ url_for(
+                        'static',
+                        filename='images/' +
+                        movies[name]['image']
+                        ) }}"
+
+                        alt="{{ name }}">
+
+                    </a>
+
+                    <h3>
+                        {{ name }}
+                    </h3>
+
+                </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <h1>
+            Movie Not Found
+        </h1>
+
+        <h2>
+            Try searching:
+        </h2>
+
+        <div class="row">
+
+            <div class="card">
+
+                <a href="/details/Interstellar">
+
+                    <img
+                    src="{{ url_for(
+                    'static',
+                    filename='images/interstellar.jpg'
+                    ) }}">
+
+                </a>
+
+                <h3>
+                    Interstellar
+                </h3>
+
+            </div>
+
+
+            <div class="card">
+
+                <a href="/details/Inception">
+
+                    <img
+                    src="{{ url_for(
+                    'static',
+                    filename='images/inception.jpg'
+                    ) }}">
+
+                </a>
+
+                <h3>
+                    Inception
+                </h3>
+
+            </div>
+
+
+            <div class="card">
+
+                <a href="/details/Avatar">
+
+                    <img
+                    src="{{ url_for(
+                    'static',
+                    filename='images/avatar.jpg'
+                    ) }}">
+
+                </a>
+
+                <h3>
+                    Avatar
+                </h3>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+    <br><br>
+
+    <a href="/" class="btn">
+        ← Back to Home
+    </a>
+
+</div>
+
+</body>
+</html>

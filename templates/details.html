@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>{{ name }}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='style.css') }}">
+
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        CineSuggestion
+    </div>
+
+    <ul>
+
+        <li>
+            <a href="/">Home</a>
+        </li>
+
+        <li>
+            <a href="/watchlist">
+                ❤️ My List
+            </a>
+        </li>
+
+    </ul>
+
+</nav>
+
+
+<div class="details">
+
+    <div class="poster">
+
+        <img
+        src="{{ url_for(
+        'static',
+        filename='images/' + movie.image
+        ) }}"
+
+        alt="{{ name }}">
+
+    </div>
+
+
+    <div class="info">
+
+        <h1>
+            {{ name }}
+        </h1>
+
+        <h3>
+            Genre :
+            {{ movie.genre }}
+        </h3>
+
+        <h3>
+            Rating :
+            ⭐ {{ movie.rating }}
+        </h3>
+
+        <br>
+
+        <p>
+
+            Enjoy watching
+            <strong>{{ name }}</strong>.
+
+            Discover similar movies and
+            add them to your personal
+            watchlist.
+
+        </p>
+
+        <br>
+
+        <a href="/add/{{ name }}"
+           class="btn">
+
+            ❤️ Add to Watchlist
+
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
