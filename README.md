@@ -1,2 +1,2 @@
-# CineSuggestion
-Netflix-inspired intelligent movie recommendation system using Python Flask and SQLite.
+# MovieMatch-Netflix-Inspired-Movie-Recommendation-System
+Netflix-inspired intelligent movie recommendation system developed using Python Flask and SQLite.
