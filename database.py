@@ -1,8 +1,3 @@
-import sqlite3
+from flask_sqlalchemy import SQLAlchemy
 
-conn = sqlite3.connect(
-    "database.db",
-    check_same_thread=False
-)
-
-cursor = conn.cursor()
+db = SQLAlchemy()

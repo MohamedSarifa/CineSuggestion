@@ -1,12 +1,37 @@
-from flask import Flask, render_template
-from flask import request, redirect
-from flask import url_for, session
+import os
 
-from database import cursor, conn
+from flask import Flask
+from flask import render_template
+from flask import request
+from flask import redirect
+from flask import url_for
+from flask import session
+
+from dotenv import load_dotenv
+
+from database import db
+from models import User, Watchlist
 from movies import movies
 
+
+# ================= APP CONFIG =================
+
+load_dotenv()
+
 app = Flask(__name__)
+
 app.secret_key = "cinesuggestion_secret"
+
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+    "DATABASE_URL"
+)
+
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db.init_app(app)
+
+with app.app_context():
+    db.create_all()
 
 
 # ================= HOME =================
@@ -14,12 +39,10 @@ app.secret_key = "cinesuggestion_secret"
 @app.route("/")
 def home():
 
-    username = session.get("username")
-
     return render_template(
         "index.html",
         movies=movies,
-        username=username
+        username=session.get("username")
     )
 
 
@@ -37,23 +60,24 @@ def save_user():
     email = request.form["email"]
     password = request.form["password"]
 
-    try:
+    existing_user = User.query.filter(
+        (User.username == username) |
+        (User.email == email)
+    ).first()
 
-        cursor.execute(
-            """
-            INSERT INTO users
-            (username, email, password)
-            VALUES (?, ?, ?)
-            """,
-            (username, email, password)
-        )
-
-        conn.commit()
-
-        return redirect(url_for("login"))
-
-    except:
+    if existing_user:
         return "Username or Email already exists."
+
+    new_user = User(
+        username=username,
+        email=email,
+        password=password
+    )
+
+    db.session.add(new_user)
+    db.session.commit()
+
+    return redirect(url_for("login"))
 
 
 # ================= LOGIN =================
@@ -69,20 +93,15 @@ def check_login():
     username = request.form["username"]
     password = request.form["password"]
 
-    cursor.execute(
-        """
-        SELECT *
-        FROM users
-        WHERE username = ?
-        AND password = ?
-        """,
-        (username, password)
-    )
-
-    user = cursor.fetchone()
+    user = User.query.filter_by(
+        username=username,
+        password=password
+    ).first()
 
     if user:
+
         session["username"] = username
+
         return redirect(url_for("home"))
 
     return "Invalid Username or Password"
@@ -135,7 +154,7 @@ def details(name):
     )
 
 
-# ================= ADD TO WATCHLIST =================
+# ================= ADD WATCHLIST =================
 
 @app.route("/add/<name>")
 def add_to_watchlist(name):
@@ -145,30 +164,20 @@ def add_to_watchlist(name):
 
     username = session["username"]
 
-    cursor.execute(
-        """
-        SELECT *
-        FROM watchlist
-        WHERE username = ?
-        AND movie_name = ?
-        """,
-        (username, name)
-    )
-
-    movie = cursor.fetchone()
+    movie = Watchlist.query.filter_by(
+        username=username,
+        movie_name=name
+    ).first()
 
     if not movie:
 
-        cursor.execute(
-            """
-            INSERT INTO watchlist
-            (username, movie_name)
-            VALUES (?, ?)
-            """,
-            (username, name)
+        new_movie = Watchlist(
+            username=username,
+            movie_name=name
         )
 
-        conn.commit()
+        db.session.add(new_movie)
+        db.session.commit()
 
     return redirect(url_for("my_watchlist"))
 
@@ -183,21 +192,14 @@ def my_watchlist():
 
     username = session["username"]
 
-    cursor.execute(
-        """
-        SELECT movie_name
-        FROM watchlist
-        WHERE username = ?
-        """,
-        (username,)
-    )
+    rows = Watchlist.query.filter_by(
+        username=username
+    ).all()
 
-    rows = cursor.fetchall()
-
-    watchlist = []
-
-    for row in rows:
-        watchlist.append(row[0])
+    watchlist = [
+        row.movie_name
+        for row in rows
+    ]
 
     return render_template(
         "watchlist.html",
@@ -207,7 +209,7 @@ def my_watchlist():
     )
 
 
-# ================= REMOVE FROM WATCHLIST =================
+# ================= REMOVE MOVIE =================
 
 @app.route("/remove/<name>")
 def remove_movie(name):
@@ -217,16 +219,16 @@ def remove_movie(name):
 
     username = session["username"]
 
-    cursor.execute(
-        """
-        DELETE FROM watchlist
-        WHERE username = ?
-        AND movie_name = ?
-        """,
-        (username, name)
-    )
+    movie = Watchlist.query.filter_by(
+        username=username,
+        movie_name=name
+    ).first()
 
-    conn.commit()
+    if movie:
+
+        db.session.delete(movie)
+
+        db.session.commit()
 
     return redirect(url_for("my_watchlist"))
 
@@ -235,4 +237,3 @@ def remove_movie(name):
 
 if __name__ == "__main__":
     app.run(debug=True)
-    
