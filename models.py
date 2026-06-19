@@ -1,4 +1,5 @@
 from database import db
+from datetime import datetime
 
 class User(db.Model):
 
@@ -41,4 +42,31 @@ class Watchlist(db.Model):
     movie_name = db.Column(
         db.String(200),
         nullable=False
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+
+class Rating(db.Model):
+
+    __tablename__ = "ratings"
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    username = db.Column(
+        db.String(100)
+    )
+
+    movie_name = db.Column(
+        db.String(200)
+    )
+
+    rating = db.Column(
+        db.Integer
     )

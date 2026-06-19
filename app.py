@@ -12,7 +12,8 @@ from dotenv import load_dotenv
 from database import db
 from models import User, Watchlist
 from movies import movies
-
+from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
 
 # ================= APP CONFIG =================
 
@@ -69,10 +70,10 @@ def save_user():
         return "Username or Email already exists."
 
     new_user = User(
-        username=username,
-        email=email,
-        password=password
-    )
+    username=username,
+    email=email,
+    password=generate_password_hash(password)
+)
 
     db.session.add(new_user)
     db.session.commit()
@@ -90,21 +91,23 @@ def login():
 @app.route("/check_login", methods=["POST"])
 def check_login():
 
-    username = request.form["username"]
-    password = request.form["password"]
+username = request.form["username"]
+password = request.form["password"]
 
-    user = User.query.filter_by(
-        username=username,
-        password=password
-    ).first()
+user = User.query.filter_by(
+    username=username
+).first()
 
-    if user:
+if user and check_password_hash(
+        user.password,
+        password):
 
-        session["username"] = username
+    session["username"] = username
 
-        return redirect(url_for("home"))
+    return redirect(url_for("home"))
 
-    return "Invalid Username or Password"
+return "Invalid Username or Password"
+
 
 
 # ================= LOGOUT =================
@@ -231,6 +234,25 @@ def remove_movie(name):
         db.session.commit()
 
     return redirect(url_for("my_watchlist"))
+
+@app.route("/dashboard")
+def dashboard():
+
+
+if "username" not in session:
+    return redirect(url_for("login"))
+
+username = session["username"]
+
+total = Watchlist.query.filter_by(
+    username=username
+).count()
+
+return render_template(
+    "dashboard.html",
+    username=username,
+    total=total
+)
 
 
 # ================= RUN APP =================
