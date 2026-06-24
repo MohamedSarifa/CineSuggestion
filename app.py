@@ -1,5 +1,9 @@
 import os
 
+from recommendation import (
+    get_recommendations,
+    get_movie_details
+)
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -10,12 +14,17 @@ from flask import session
 from dotenv import load_dotenv
 
 from database import db
-from models import User, Watchlist
-from movies import movies
+from models import (
+    User,
+    Watchlist,
+    SearchHistory
+)
+from omdb import search_movie
+
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 
-# ================= APP CONFIG =================
+# ================= CONFIG =================
 
 load_dotenv()
 
@@ -29,24 +38,46 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 300
+}
+
 db.init_app(app)
 
 with app.app_context():
     db.create_all()
-
 
 # ================= HOME =================
 
 @app.route("/")
 def home():
 
+    movie_names = [
+        "Interstellar",
+        "Inception",
+        "Oppenheimer",
+        "Joker",
+        "Avatar",
+        "Dune",
+        "John Wick",
+        "Avengers: Endgame"
+    ]
+
+    popular_movies = []
+
+    for name in movie_names:
+
+        movie = search_movie(name)
+
+        if movie:
+            popular_movies.append(movie)
+
     return render_template(
         "index.html",
-        movies=movies,
+        popular_movies=popular_movies,
         username=session.get("username")
     )
-
-
 # ================= REGISTER =================
 
 @app.route("/register")
@@ -70,16 +101,15 @@ def save_user():
         return "Username or Email already exists."
 
     new_user = User(
-    username=username,
-    email=email,
-    password=generate_password_hash(password)
-)
+        username=username,
+        email=email,
+        password=generate_password_hash(password)
+    )
 
     db.session.add(new_user)
     db.session.commit()
 
     return redirect(url_for("login"))
-
 
 # ================= LOGIN =================
 
@@ -91,24 +121,23 @@ def login():
 @app.route("/check_login", methods=["POST"])
 def check_login():
 
-username = request.form["username"]
-password = request.form["password"]
+    username = request.form["username"]
+    password = request.form["password"]
 
-user = User.query.filter_by(
-    username=username
-).first()
+    user = User.query.filter_by(
+        username=username
+    ).first()
 
-if user and check_password_hash(
+    if user and check_password_hash(
         user.password,
-        password):
+        password
+    ):
 
-    session["username"] = username
+        session["username"] = username
 
-    return redirect(url_for("home"))
+        return redirect(url_for("home"))
 
-return "Invalid Username or Password"
-
-
+    return "Invalid Username or Password"
 
 # ================= LOGOUT =================
 
@@ -119,45 +148,79 @@ def logout():
 
     return redirect(url_for("home"))
 
-
 # ================= SEARCH =================
 
 @app.route("/search", methods=["POST"])
 def search():
 
-    movie = request.form["movie"].title()
+    movie_name = request.form["movie"]
 
-    if movie in movies:
-        recommendations = movies[movie]["recommendations"]
-    else:
-        recommendations = []
+    # ================= SEARCH HISTORY =================
+
+    if "username" in session:
+
+        existing = SearchHistory.query.filter_by(
+            username=session["username"],
+            movie_name=movie_name
+        ).first()
+
+        if not existing:
+
+            history = SearchHistory(
+                username=session["username"],
+                movie_name=movie_name
+            )
+
+            db.session.add(history)
+            db.session.commit()
+
+    # ================= GET MOVIE DETAILS =================
+
+    movie = get_movie_details(movie_name)
+
+    if not movie:
+        movie = search_movie(movie_name)
+
+    if not movie:
+
+        return render_template(
+            "result.html",
+            movie=None,
+            recommendations=[]
+        )
+
+    # ================= RECOMMENDATIONS =================
+
+    recommended_names = get_recommendations(
+        movie_name
+    )
+
+    recommendations = []
+
+    for title, score in recommended_names:
+
+        rec_movie = get_movie_details(title)
+
+        if not rec_movie:
+            rec_movie = search_movie(title)
+
+        if rec_movie:
+
+            rec_movie["match"] = score
+
+            recommendations.append(
+                rec_movie
+            )
+
+    # ================= RESULT PAGE =================
 
     return render_template(
         "result.html",
         movie=movie,
         recommendations=recommendations,
-        movies=movies,
         username=session.get("username")
     )
-
-
-# ================= DETAILS =================
-
-@app.route("/details/<name>")
-def details(name):
-
-    if name not in movies:
-        return "Movie Not Found"
-
-    return render_template(
-        "details.html",
-        name=name,
-        movie=movies[name],
-        username=session.get("username")
-    )
-
-
-# ================= ADD WATCHLIST =================
+# ================= WATCHLIST =================
 
 @app.route("/add/<name>")
 def add_to_watchlist(name):
@@ -167,25 +230,23 @@ def add_to_watchlist(name):
 
     username = session["username"]
 
-    movie = Watchlist.query.filter_by(
+    existing = Watchlist.query.filter_by(
         username=username,
         movie_name=name
     ).first()
 
-    if not movie:
+    if not existing:
 
-        new_movie = Watchlist(
+        movie = Watchlist(
             username=username,
             movie_name=name
         )
 
-        db.session.add(new_movie)
+        db.session.add(movie)
         db.session.commit()
 
     return redirect(url_for("my_watchlist"))
 
-
-# ================= WATCHLIST =================
 
 @app.route("/watchlist")
 def my_watchlist():
@@ -199,21 +260,42 @@ def my_watchlist():
         username=username
     ).all()
 
-    watchlist = [
-        row.movie_name
-        for row in rows
-    ]
+    watchlist = []
+
+    for row in rows:
+
+        movie = get_movie_details(row.movie_name)
+        if not movie:
+            movie = search_movie(
+                row.movie_name
+            )
+
+        if movie:
+            watchlist.append(movie)
 
     return render_template(
         "watchlist.html",
         watchlist=watchlist,
-        movies=movies,
         username=username
     )
 
+@app.route("/history")
+def history():
 
-# ================= REMOVE MOVIE =================
+    if "username" not in session:
+        return redirect(url_for("login"))
 
+    rows = SearchHistory.query.filter_by(
+        username=session["username"]
+    ).order_by(
+        SearchHistory.id.desc()
+    ).all()
+
+    return render_template(
+        "history.html",
+        rows=rows,
+        username=session["username"]
+    )
 @app.route("/remove/<name>")
 def remove_movie(name):
 
@@ -230,32 +312,32 @@ def remove_movie(name):
     if movie:
 
         db.session.delete(movie)
-
         db.session.commit()
 
     return redirect(url_for("my_watchlist"))
 
+# ================= DASHBOARD =================
+
 @app.route("/dashboard")
 def dashboard():
 
+    if "username" not in session:
+        return redirect(url_for("login"))
 
-if "username" not in session:
-    return redirect(url_for("login"))
+    username = session["username"]
 
-username = session["username"]
+    total = Watchlist.query.filter_by(
+        username=username
+    ).count()
 
-total = Watchlist.query.filter_by(
-    username=username
-).count()
+    return render_template(
+        "dashboard.html",
+        username=username,
+        total=total
+    )
+ 
 
-return render_template(
-    "dashboard.html",
-    username=username,
-    total=total
-)
-
-
-# ================= RUN APP =================
+# ================= RUN =================
 
 if __name__ == "__main__":
     app.run(debug=True)

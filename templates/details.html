@@ -3,7 +3,7 @@
 
 <head>
 
-    <title>{{ name }}</title>
+    <title>{{ movie.title }}</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static',
@@ -35,54 +35,46 @@
 
 </nav>
 
-
 <div class="details">
 
     <div class="poster">
 
         <img
-        src="{{ url_for(
-        'static',
-        filename='images/' + movie.image
-        ) }}"
-
-        alt="{{ name }}">
+        src="{{ movie.poster }}"
+        alt="{{ movie.title }}">
 
     </div>
-
 
     <div class="info">
 
         <h1>
-            {{ name }}
+            {{ movie.title }}
         </h1>
 
         <h3>
-            Genre :
+            📅 Year :
+            {{ movie.year }}
+        </h3>
+
+        <h3>
+            🎬 Genre :
             {{ movie.genre }}
         </h3>
 
         <h3>
-            Rating :
-            ⭐ {{ movie.rating }}
+            ⭐ IMDb Rating :
+            {{ movie.rating }}
         </h3>
 
         <br>
 
         <p>
-
-            Enjoy watching
-            <strong>{{ name }}</strong>.
-
-            Discover similar movies and
-            add them to your personal
-            watchlist.
-
+            {{ movie.plot }}
         </p>
 
         <br>
 
-        <a href="/add/{{ name }}"
+        <a href="/add/{{ movie.title }}"
            class="btn">
 
             ❤️ Add to Watchlist

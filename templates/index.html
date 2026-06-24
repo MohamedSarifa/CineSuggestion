@@ -1,63 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
 
     <title>CineSuggestion</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static',
           filename='style.css') }}">
+
 </head>
 
 <body>
 
-<!-- ================= NAVBAR ================= -->
-
 <nav>
 
     <div class="logo">
-        CineSuggestion
+    🎬 CineSuggestion
     </div>
 
     <ul>
 
-        <li>
-            <a href="/">Home</a>
-        </li>
-
-        <li>
-            <a href="#movies">Movies</a>
-        </li>
-
-        <li>
-            <a href="#trending">Trending</a>
-        </li>
-
-        <li>
-            <a href="#about">About</a>
-        </li>
-
         {% if username %}
 
             <li>
+                Hi, {{ username }}
+            </li>
+
+            <li>
                 <a href="/watchlist">
-                    ❤️ My List
+                    My Watchlist
                 </a>
             </li>
 
             <li>
-                <a href="#">
-                    👤 {{ username }}
+                <a href="/dashboard">
+                    Dashboard
                 </a>
             </li>
 
             <li>
                 <a href="/logout">
                     Logout
+                </a>
+            </li>
+            <li>
+                <a href="/history">
+                     History
                 </a>
             </li>
 
@@ -70,10 +59,16 @@
             </li>
 
             <li>
-                <a href="/register">
+                <a href="/register"
+                   class="register-btn">
                     Register
                 </a>
             </li>
+            <li>
+    <a href="/history">
+        History
+    </a>
+</li>
 
         {% endif %}
 
@@ -81,65 +76,75 @@
 
 </nav>
 
-<!-- ================= HERO ================= -->
 
 <section class="hero">
 
-    <div class="hero-content">
+    <div class="overlay">
 
-        <h1>
-            Unlimited Movies,<br>
-            Recommendations &
-            Entertainment
-        </h1>
+        <div class="hero-content">
 
-        <p>
-            Discover your next favourite movie instantly.
-        </p>
+            <h1>
+                Discover Your Next
+                Favorite Movie 🎬
+            </h1>
 
-        <form action="/search"
-              method="POST">
+            <p>
+                Search thousands of movies,
+                explore ratings, and get
+                personalized recommendations.
+            </p>
 
-            <input
+            <form action="/search"
+                  method="POST"
+                  class="search-box">
+
+                <input
                     type="text"
                     name="movie"
-                    placeholder="Search movies..."
+                    placeholder="Search Interstellar, Inception..."
                     required>
 
-            <button type="submit">
-                Search
-            </button>
+                <button type="submit">
+                    🔍 Search
+                </button>
 
-        </form>
+            </form>
+
+        </div>
 
     </div>
 
 </section>
 
-<!-- ================= TRENDING ================= -->
 
-<section class="movies"
-         id="trending">
+<section class="popular">
 
-    <h2>
-        🔥 Trending Now
-    </h2>
+    <h2>🔥 Popular Movies</h2>
 
-    <div class="row">
+    <div class="movie-row">
 
-        {% for name, movie in movies.items() %}
+        {% for movie in popular_movies %}
 
-        <div class="card">
+        <div class="movie-card">
 
-            <a href="/details/{{ name }}">
+            <img
+                src="{{ movie.poster }}"
+                alt="{{ movie.title }}">
 
-                <img
-                        src="{{ url_for('static',
-                        filename='images/' + movie.image) }}"
+            <div class="movie-info">
 
-                        alt="{{ name }}">
+                <h3>{{ movie.title }}</h3>
 
-            </a>
+                <p>⭐ {{ movie.rating }}</p>
+
+                <a href="/details/{{ movie.title }}"
+                   class="view-btn">
+
+                    View Details
+
+                </a>
+
+            </div>
 
         </div>
 
@@ -148,151 +153,6 @@
     </div>
 
 </section>
-
-<!-- ================= TOP RATED ================= -->
-
-<section class="movies"
-         id="top">
-
-    <h2>
-        ⭐ Top Rated
-    </h2>
-
-    <div class="row">
-
-        {% for name, movie in movies.items() %}
-
-        {% if movie.rating|float >= 8.5 %}
-
-        <div class="card">
-
-            <a href="/details/{{ name }}">
-
-                <img
-                        src="{{ url_for('static',
-                        filename='images/' + movie.image) }}"
-
-                        alt="{{ name }}">
-
-            </a>
-
-        </div>
-
-        {% endif %}
-
-        {% endfor %}
-
-    </div>
-
-</section>
-
-<!-- ================= SCI-FI ================= -->
-
-<section class="movies"
-         id="movies">
-
-    <h2>
-        🚀 Sci-Fi Movies
-    </h2>
-
-    <div class="row">
-
-        {% for name, movie in movies.items() %}
-
-        {% if movie.genre == "Sci-Fi" %}
-
-        <div class="card">
-
-            <a href="/details/{{ name }}">
-
-                <img
-                        src="{{ url_for('static',
-                        filename='images/' + movie.image) }}"
-
-                        alt="{{ name }}">
-
-            </a>
-
-        </div>
-
-        {% endif %}
-
-        {% endfor %}
-
-    </div>
-
-</section>
-
-<!-- ================= CONTINUE WATCHING ================= -->
-
-<section class="movies"
-         id="continue">
-
-    <h2>
-        ▶ Continue Watching
-    </h2>
-
-    <div class="row">
-
-        <div class="card">
-            <img src="{{ url_for('static',
-            filename='images/interstellar.jpg') }}">
-        </div>
-
-        <div class="card">
-            <img src="{{ url_for('static',
-            filename='images/avatar.jpg') }}">
-        </div>
-
-        <div class="card">
-            <img src="{{ url_for('static',
-            filename='images/joker.jpg') }}">
-        </div>
-
-    </div>
-
-</section>
-
-<!-- ================= ABOUT ================= -->
-
-<section id="about">
-
-    <div class="about-box">
-
-        <h1>
-            About CineSuggestion
-        </h1>
-
-        <p>
-
-            CineSuggestion is a Netflix-Inspired
-            Intelligent Movie Recommendation System
-            developed using Python Flask.
-
-            Users can search movies, browse genres,
-            receive recommendations and maintain
-            their personal watchlist.
-
-        </p>
-
-    </div>
-
-</section>
-
-<!-- ================= FOOTER ================= -->
-
-<footer>
-
-    <h3>
-        CineSuggestion © 2024
-    </h3>
-
-    <p>
-        Netflix-Inspired Intelligent Movie
-        Recommendation System Using Python Flask
-    </p>
-
-</footer>
 
 </body>
 </html>

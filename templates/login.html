@@ -1,45 +1,55 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
     <title>Login</title>
+
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+          href="{{ url_for('static',
+          filename='style.css') }}">
+
 </head>
 
-<body>
+<body class="login-page">
 
-<div class="auth-box">
+<div class="auth-overlay">
 
-    <h1>Login</h1>
+    <div class="auth-box">
 
-    <p>
-        Login to access your personal watchlist
-    </p>
+        <h1>Sign In</h1>
 
-    <form action="/check_login" method="POST">
+        <form action="/check_login"
+              method="POST">
 
-        <input type="text"
-               name="username"
-               placeholder="Username"
-               required>
+            <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                required>
 
-        <input type="password"
-               name="password"
-               placeholder="Password"
-               required>
+            <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required>
 
-        <button type="submit">
-            Login
-        </button>
+            <button type="submit">
+                Login
+            </button>
 
-    </form>
+        </form>
 
-    <p>
-        Don't have an account?
-        <a href="/register">
-            Create Account
-        </a>
-    </p>
+        <p>
+            New User?
+
+            <a href="/register">
+                Register
+            </a>
+
+        </p>
+
+    </div>
 
 </div>
 

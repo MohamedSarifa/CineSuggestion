@@ -11,45 +11,52 @@
 
 </head>
 
-<body>
+<body class="register-page">
 
-<div class="auth-box">
+<div class="auth-overlay">
 
-    <h1>Create Account</h1>
+    <div class="auth-box">
 
-    <form action="/save_user"
-          method="POST">
+        <h1>Create Account</h1>
 
-        <input type="text"
-               name="username"
-               placeholder="Username"
-               required>
+        <form action="/save_user"
+              method="POST">
 
-        <input type="email"
-               name="email"
-               placeholder="Email"
-               required>
+            <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                required>
 
-        <input type="password"
-               name="password"
-               placeholder="Password"
-               required>
+            <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                required>
 
-        <button type="submit">
-            Register
-        </button>
+            <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required>
 
-    </form>
+            <button type="submit">
+                Register
+            </button>
 
-    <p>
+        </form>
 
-        Already have an account?
+        <p>
 
-        <a href="/login">
-            Login
-        </a>
+            Already have an account?
 
-    </p>
+            <a href="/login">
+                Login
+            </a>
+
+        </p>
+
+    </div>
 
 </div>
 

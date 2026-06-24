@@ -1,29 +1,61 @@
 <!DOCTYPE html>
-
 <html>
-
 <head>
     <title>Dashboard</title>
 
-```
-<link rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}">
-```
-
+    <link rel="stylesheet"
+          href="{{ url_for('static',
+          filename='style.css') }}">
 </head>
 
 <body>
 
-<div class="dashboard">
+<nav>
+    <div class="logo">
+        CineSuggestion
+    </div>
 
-```
-<h1>Welcome {{ username }}</h1>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/watchlist">Watchlist</a></li>
+        <li><a href="/logout">Logout</a></li>
+    </ul>
+</nav>
 
-<h2>Total Movies in Watchlist: {{ total }}</h2>
+<div class="dashboard-page">
 
-<a href="/">Home</a>
-<a href="/watchlist">My Watchlist</a>
-```
+    <div class="welcome-card">
+        <h1>👋 Welcome, {{ username }}</h1>
+        <p>
+            Discover movies, save favourites
+            and get recommendations.
+        </p>
+    </div>
+
+    <div class="dashboard-grid">
+
+        <div class="dashboard-card">
+            <h2>❤️ Watchlist</h2>
+            <div class="big-number">
+                {{ total }}
+            </div>
+            <p>Movies Saved</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h2>🎬 Search Movies</h2>
+
+            <p>
+                Explore thousands of movies
+                using OMDb API.
+            </p>
+
+            <a href="/" class="dash-btn">
+                Explore
+            </a>
+        </div>
+
+    </div>
 
 </div>
 

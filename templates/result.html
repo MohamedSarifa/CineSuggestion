@@ -3,7 +3,7 @@
 
 <head>
 
-    <title>Recommendations</title>
+    <title>{{ movie.title }}</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static',
@@ -16,20 +16,16 @@
 <nav>
 
     <div class="logo">
-        CineSuggestion
+        🎬 CineSuggestion
     </div>
 
     <ul>
 
-        <li>
-            <a href="/">
-                Home
-            </a>
-        </li>
+        <li><a href="/">Home</a></li>
 
         <li>
             <a href="/watchlist">
-                ❤️ My List
+                Watchlist
             </a>
         </li>
 
@@ -37,128 +33,120 @@
 
 </nav>
 
+{% if movie %}
 
-<div class="result-page">
+<section class="result-hero">
+
+    <div class="result-poster">
+
+        <img src="{{ movie.poster }}"
+             alt="{{ movie.title }}">
+
+    </div>
+
+    <div class="result-info">
+
+        <h1>
+            {{ movie.title }}
+        </h1>
+
+        <h3>
+            📅 {{ movie.year }}
+        </h3>
+
+        <h3>
+            🎬 {{ movie.genre }}
+        </h3>
+
+        <h3>
+            ⭐ IMDb Rating:
+            {{ movie.rating }}
+        </h3>
+
+        <p class="plot">
+
+            {{ movie.plot }}
+
+        </p>
+
+        <a href="/add/{{ movie.title }}"
+           class="big-btn">
+
+            ❤️ Add To Watchlist
+
+        </a>
+
+    </div>
+
+</section>
+
+<hr>
+
+<section class="recommend-section">
+
+    <h2>
+        🎯 Recommended Movies
+    </h2>
 
     {% if recommendations %}
 
-        <h1>
-            Because you watched
-            "{{ movie }}"
-        </h1>
+    <div class="recommend-grid">
 
-        <div class="row">
+        {% for rec in recommendations %}
 
-            {% for name in recommendations %}
+        <div class="movie-card">
 
-                {% if name in movies %}
+            <img src="{{ rec.poster }}"
+                 alt="{{ rec.title }}">
 
-                <div class="card">
+            <div class="movie-info">
 
-                    <a href="/details/{{ name }}">
+                <h3>{{ rec.title }}</h3>
 
-                        <img
-                        src="{{ url_for(
-                        'static',
-                        filename='images/' +
-                        movies[name]['image']
-                        ) }}"
+                <p>
+                    ❤️ {{ rec.match }}% Match
+                </p>
 
-                        alt="{{ name }}">
+                <a href="/details/{{ rec.title }}"
+                   class="view-btn">
 
-                    </a>
+                    View Details
 
-                    <h3>
-                        {{ name }}
-                    </h3>
+                </a>
 
-                </div>
-
-                {% endif %}
-
-            {% endfor %}
+            </div>
 
         </div>
+
+        {% endfor %}
+
+    </div>
 
     {% else %}
 
-        <h1>
-            Movie Not Found
-        </h1>
-
-        <h2>
-            Try searching:
-        </h2>
-
-        <div class="row">
-
-            <div class="card">
-
-                <a href="/details/Interstellar">
-
-                    <img
-                    src="{{ url_for(
-                    'static',
-                    filename='images/interstellar.jpg'
-                    ) }}">
-
-                </a>
-
-                <h3>
-                    Interstellar
-                </h3>
-
-            </div>
-
-
-            <div class="card">
-
-                <a href="/details/Inception">
-
-                    <img
-                    src="{{ url_for(
-                    'static',
-                    filename='images/inception.jpg'
-                    ) }}">
-
-                </a>
-
-                <h3>
-                    Inception
-                </h3>
-
-            </div>
-
-
-            <div class="card">
-
-                <a href="/details/Avatar">
-
-                    <img
-                    src="{{ url_for(
-                    'static',
-                    filename='images/avatar.jpg'
-                    ) }}">
-
-                </a>
-
-                <h3>
-                    Avatar
-                </h3>
-
-            </div>
-
-        </div>
+    <p style="text-align:center;">
+        No recommendations available.
+    </p>
 
     {% endif %}
 
-    <br><br>
+</section>
 
-    <a href="/" class="btn">
-        ← Back to Home
+{% else %}
+
+<div class="not-found">
+
+    <h1>
+        Movie Not Found
+    </h1>
+
+    <a href="/">
+        Search Again
     </a>
 
 </div>
+
+{% endif %}
 
 </body>
 </html>

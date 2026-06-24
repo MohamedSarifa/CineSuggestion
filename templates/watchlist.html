@@ -17,42 +17,100 @@
         CineSuggestion
     </div>
 
+    <ul>
+        <li>
+            <a href="/">Home</a>
+        </li>
+
+        <li>
+            <a href="/dashboard">
+                Dashboard
+            </a>
+        </li>
+
+        <li>
+            <a href="/logout">
+                Logout
+            </a>
+        </li>
+    </ul>
+
 </nav>
 
-<div class="watch">
 
-    <h1>❤️ My Watchlist</h1>
+<div class="watchlist-page">
+
+    <h1>
+        ❤️ My Watchlist
+    </h1>
 
     {% if watchlist %}
 
-        <div class="row">
+    <div class="movie-grid">
 
-            {% for movie_name in watchlist %}
+        {% for movie in watchlist %}
 
-                <div class="card">
+        <div class="movie-card">
 
-                    <img
-                    src="{{ url_for(
-                    'static',
-                    filename='images/' +
-                    movies[movie_name].image
-                    ) }}">
+            <img
+                src="{{ movie.poster }}"
+                alt="{{ movie.title }}">
 
-                    <h3>
-                        {{ movie_name }}
-                    </h3>
+            <div class="movie-info">
 
-                </div>
+                <h3>
+                    {{ movie.title }}
+                </h3>
 
-            {% endfor %}
+                <p>
+                    ⭐ {{ movie.rating }}
+                </p>
+
+                {% if movie.year %}
+                <p>
+                    📅 {{ movie.year }}
+                </p>
+                {% endif %}
+
+                <a href="/details/{{ movie.title }}"
+                   class="btn">
+                    View Details
+                </a>
+
+                <a href="/remove/{{ movie.title }}"
+                   class="remove-btn">
+                    Remove
+                </a>
+
+            </div>
 
         </div>
 
+        {% endfor %}
+
+    </div>
+
     {% else %}
 
+    <div class="empty-box">
+
         <h2>
-            No movies added yet.
+            Your watchlist is empty
         </h2>
+
+        <p>
+            Start exploring and add your
+            favourite movies.
+        </p>
+
+        <br>
+
+        <a href="/"
+           class="btn">
+            Discover Movies
+        </a>
+
+    </div>
 
     {% endif %}
 
