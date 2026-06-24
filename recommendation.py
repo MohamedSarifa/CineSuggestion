@@ -91,7 +91,7 @@ similarity = cosine_similarity(
 
 # ================= RECOMMENDATION FUNCTION =================
 
-def get_recommendations(movie_name, top_n=20):
+def get_recommendations(movie_name):
 
     movie_name = movie_name.lower().strip()
 
@@ -140,9 +140,8 @@ def get_recommendations(movie_name, top_n=20):
             !=
             current_movie["type"].lower()
               ):
-              
-                    bonus += 0.10
-
+              continue
+        
         # ================= LANGUAGE =================
 
         if (
@@ -302,7 +301,7 @@ def get_recommendations(movie_name, top_n=20):
         reverse=True
     )
 
-    return final_recommendations[:top_n]
+    return final_recommendations[:20]
 def get_movie_details(title):
 
     movie = movies[
